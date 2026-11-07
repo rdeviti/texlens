@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage{cleveref}
+\usepackage{comment}
+\usepackage{xcolor}
+
+\newif\ifdraft
+\drafttrue
+\newcommand{\sys}{Foo}
+\newcommand{\fixme}[1]{\textcolor{green}{Fix: #1}}
+\newcommand{\rev}[1]{\textcolor{blue}{#1}}
+\newcommand{\finalversion}{\draftfalse}
+
+\begin{document}
+
+\begin{abstract}
+Alpha beta gamma.
+\end{abstract}
+
+\section{Intro}
+\label{sec:intro}
+One two \sys{} three.
+\fixme{should not count}
+\rev{four five}
+See \cref{sec:intro}.
+\if 0
+hidden words here
+\else
+six
+\fi
+\begin{comment}
+hidden too
+\end{comment}
+Footnote\footnote{seven forty-two}.
+
+\input{sections/method}
+
+%TC:ignore
+\begin{figure}
+\caption{nine ten}
+\end{figure}
+%TC:endignore
+\begin{figure}
+\caption{eleven}
+\end{figure}
+
+Math $x+y$ here.
+\ifdraft
+twelve
+\else
+not shown
+\fi
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\appendix
+\section{Extra}
+Appendix words are not counted.
+\end{document}

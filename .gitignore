@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.env
+.envrc
+.tox/
+.nox/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*~
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+
+# LaTeX builds of the test paper
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+tests/paper/*.pdf
