@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="texlens: a lens on your TeX, without the clutter" width="100%">
+  <img src="https://raw.githubusercontent.com/rdeviti/texlens/main/assets/banner.svg" alt="texlens: a lens on your TeX, without the clutter" width="100%">
 </p>
 
 texlens reads the source of a LaTeX paper to set aside the clutter:
@@ -19,7 +19,6 @@ Then, texlens can:
   changes for a revision;
 - **list your macros** (`texlens macros`) and whether they are counted or not.
 
-> [!NOTE]
 > **Your paper stays on your computer.** texlens runs locally, makes no
 > network connections, and it collects no data. It reads the files of your
 > paper without changing them. With `texlens words`, it uses TeXcount, which
@@ -44,18 +43,18 @@ and your own macros.
 
 ## Install
 
-texlens needs Python 3.10 or later, and it is not yet on PyPI. Clone this
-repository, and install texlens from its directory with
+texlens needs Python 3.10 or later. Install it with
 [pipx](https://pipx.pypa.io/), which makes the `texlens` command available
 everywhere:
 
 ```sh
-pipx install .
+pipx install texlens
 ```
 
 If you do not have pipx: `brew install pipx` on macOS
 or `sudo apt install pipx` on Debian and Ubuntu, then `pipx ensurepath`, and
-open a new terminal.
+open a new terminal. To install the development version instead, clone this
+repository and run `pipx install .` in its directory.
 
 Our command `texlens words` needs TeXcount, which comes with most TeX distributions:
 
@@ -102,7 +101,7 @@ you can describe them with options or in a
 ## Example
 
 This repository includes a small paper,
-[`tests/paper`](tests/paper).
+[`tests/paper`](https://github.com/rdeviti/texlens/tree/main/tests/paper).
 In the example, we define:
 
 ```latex
@@ -437,10 +436,12 @@ on every pull request.
 
 Copyright 2026 Roberta De Viti.
 
-texlens is released under the [Apache License 2.0](LICENSE). You may use,
+texlens is released under the
+[Apache License 2.0](https://github.com/rdeviti/texlens/blob/main/LICENSE). You may use,
 modify, and redistribute it, also in proprietary software. If you
-redistribute it, modified or not, include the [LICENSE](LICENSE) and
-[NOTICE](NOTICE) files, keep the copyright notices, and mark the files that
+redistribute it, modified or not, include the
+[LICENSE](https://github.com/rdeviti/texlens/blob/main/LICENSE) and
+[NOTICE](https://github.com/rdeviti/texlens/blob/main/NOTICE) files, keep the copyright notices, and mark the files that
 you change. Contributors also grant you a license to any of their patents
 that texlens would otherwise infringe.
 
