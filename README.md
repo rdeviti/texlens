@@ -53,8 +53,9 @@ pipx install texlens
 
 If you do not have pipx: `brew install pipx` on macOS
 or `sudo apt install pipx` on Debian and Ubuntu, then `pipx ensurepath`, and
-open a new terminal. To install the development version instead, clone this
-repository and run `pipx install .` in its directory.
+open a new terminal. Plain pip works too: `pip install texlens`. To install
+the development version instead, clone this repository and run
+`pipx install .` in its directory.
 
 Our command `texlens words` needs TeXcount, which comes with most TeX distributions:
 
