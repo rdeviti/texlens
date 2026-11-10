@@ -17,6 +17,9 @@ Then, texlens can:
 - **list revised passages** (`texlens changes`), such as the text of each
   `\rev{...}`, section by section, for example to write or check a list of
   changes for a revision;
+- **print the abstract as plain text** (`texlens abstract`), with your macros
+  expanded and without notes, citations, or formatting, ready to paste into a
+  submission form;
 - **list your macros** (`texlens macros`) and whether they are counted or not.
 
 > **Your paper stays on your computer.** texlens runs locally, makes no
@@ -81,7 +84,8 @@ texlens finds your main file: `main.tex`, or else the only `.tex` file with
 or `texlens words ~/papers/draft`.
 
 In the same way, run `texlens notes` to list the notes to coauthors,
-`texlens changes` for the revised passages, and `texlens macros` for your macros.
+`texlens changes` for the revised passages, `texlens abstract` for the
+abstract, and `texlens macros` for your macros.
 Since most papers define custom macros (e.g., `\fixme{...}` for notes),
 you can describe them with options or in a
 [`texlens.toml`](#configuration) file. See the example below.
@@ -98,6 +102,10 @@ you can describe them with options or in a
    settings of texlens, the settings win.
 3. For `notes` and `changes`, it finds the calls of your macros, and numbers
    the sections as LaTeX does by default.
+4. For `abstract`, it converts the text of the `abstract` environment (or of
+   `\abstract{...}`) to plain text: it expands the macros that your preamble
+   defines, keeps the text of formatting commands and changes, and drops
+   notes, citations, and labels.
 
 ## Example
 
@@ -125,8 +133,8 @@ it or not.
 $ texlens macros
 macro          args   uses  treatment
 \rev              1      3  arguments counted as text
+\sys              0      2  no words counted
 \fixme            1      1  arguments counted as text
-\sys              0      1  no words counted
 \finalversion     0      0  no words counted
 
 Configure macros in texlens.toml next to main.tex, or with --note/--change/--ignore/--word.
@@ -153,8 +161,8 @@ setting. With the settings in the example above, the table becomes:
 $ texlens macros --note fixme --change rev --word sys=1
 macro          args   uses  treatment
 \rev              1      3  change: counted
+\sys              0      2  counts as 1 word
 \fixme            1      1  note: not counted
-\sys              0      1  counts as 1 word
 \finalversion     0      0  no words counted
 
 Configure macros in texlens.toml next to main.tex, or with --note/--change/--ignore/--word.
@@ -177,16 +185,16 @@ sys = 1
 ```console
 $ texlens words --note fixme --change rev --word sys=1
 Counted from \begin{abstract} to \bibliographystyle.
-  Words in text:            20
+  Words in text:            28
   Words in headings:         3
   Words in captions:         1  (not counted)
   Formulas:                  1  (not counted)
-  Word count:               23
+  Word count:               31
 ```
 
 The word count adds up the lines not marked "(not counted)". Without the three
-settings, it would be 25: the three words of the note would be counted, and
-`\sys` would not. [What `texlens words` counts](#what-texlens-words-counts)
+settings, it would be 32: the three words of the note would be counted, and
+the two `\sys` would not. [What `texlens words` counts](#what-texlens-words-counts)
 explains the defaults and how to change them.
 
 ### List notes to coauthors: `texlens notes`
@@ -239,6 +247,37 @@ $ texlens changes --change rev --summary
 ```
 
 As for `notes`, `--full` prints long passages in full.
+
+### Copy the abstract: `texlens abstract`
+
+Submission forms often ask for the abstract as plain text. `texlens abstract`
+prints it as the PDF shows it, without LaTeX markup:
+
+```console
+$ texlens abstract
+Alpha beta gamma. We present Foo, a tiny paper—for “testing”.
+
+(10 words, 61 characters)
+```
+
+The source of this abstract is:
+
+```latex
+Alpha beta gamma. We present \sys{}, a \emph{tiny} paper---for ``testing''.
+```
+
+texlens expands the macros that the paper defines, here `\sys`, and keeps
+the text of formatting commands such as `\emph` and `\textcolor`, of changes
+such as `\rev{...}`, and of URLs. It drops notes, citations, labels, and
+footnotes, and turns LaTeX characters into the characters they print: `---`
+into —, ``` ``...'' ``` into “...”, `\'e` into é, and `~` into a space. It
+keeps the paragraphs, separated by blank lines.
+
+texlens warns about what it cannot convert: a reference such as `\cref`, which
+it drops (rewrite the text around it), math with commands such as
+`$\epsilon$`, which it keeps as LaTeX, and macros that it does not know. The
+counts of words and characters go to the error output, so
+`texlens abstract | pbcopy` on macOS copies only the abstract.
 
 ## Configuration
 
@@ -411,6 +450,8 @@ The tests cover:
 - **word counts:** the counted range, the settings and rules given to
   TeXcount, `%TC:ignore` regions, and, with TeXcount, the counts of the test
   paper and of a paper without hidden text, which must equal TeXcount's own;
+- **the abstract:** expanding macros, dropping notes and citations, accents
+  and special characters, math, lines joined by comments, and paragraphs;
 - **the command line:** the output of each command, `--summary` and
   `--json`, warnings, and errors such as a missing main file or a missing
   TeXcount.

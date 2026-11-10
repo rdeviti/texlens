@@ -107,7 +107,7 @@ class ListingTest(ProjectCase):
         found = {m.name: m for m in macros(self.doc, Config(
             notes=["todo", "fixme"], changes=["rev"], words={"sys": 1}))}
         self.assertEqual((found["sys"].args, found["sys"].uses,
-                          found["sys"].treatment), (0, 1, "counts as 1 word"))
+                          found["sys"].treatment), (0, 2, "counts as 1 word"))
         self.assertEqual(found["rev"].uses, 3)  # one call is nested
         self.assertEqual(found["fixme"].treatment, "note: not counted")
         self.assertEqual(found["finalversion"].treatment, "no words counted")

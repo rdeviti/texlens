@@ -15,6 +15,7 @@ from . import __version__
 from .config import (CONFIG_NAME, ConfigError, apply_overrides, find_config,
                      load_config, validate)
 from .listing import changes, macros, notes
+from .plaintext import NoAbstractError, abstract
 from .source import find_main, load
 from .words import TeXcountError, count_words
 
@@ -52,9 +53,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="texlens",
         description="A lens on your TeX, without the clutter: count the "
-        "words of your paper, and list its notes to coauthors and revised "
-        "passages. Text that never reaches the PDF (\\iffalse, \\if 0, false "
-        "\\newif switches, comment environments) is left out.")
+        "words of your paper, list its notes to coauthors and revised "
+        "passages, and print its abstract as plain text. Text that never "
+        "reaches the PDF (\\iffalse, \\if 0, false \\newif switches, comment "
+        "environments) is left out.")
     parser.add_argument("--version", action="version",
                         version=f"texlens {__version__}")
     sub = parser.add_subparsers(dest="command", metavar="command")
@@ -104,6 +106,15 @@ def build_parser() -> argparse.ArgumentParser:
                        "how often the main text uses them, and how the word "
                        "count treats them.")
     _common(p)
+
+    p = sub.add_parser("abstract", help="print the abstract as plain text, "
+                       "for submission forms",
+                       description="Print the abstract as plain text, ready "
+                       "to paste into a submission form: without hidden "
+                       "text, notes, or formatting, and with the paper's "
+                       "simple macros, such as \\sys, replaced by what they "
+                       "print.")
+    _common(p)
     return parser
 
 
@@ -120,7 +131,7 @@ def main(argv=None) -> int:
         except (OSError, ValueError):
             pass
         return 1
-    except (ConfigError, TeXcountError) as e:
+    except (ConfigError, TeXcountError, NoAbstractError) as e:
         print(f"texlens: {e}", file=sys.stderr)
         return 2
     except OSError as e:
@@ -140,7 +151,24 @@ def _run(args) -> int:
         return _words(doc, cfg, args)
     if args.command in ("notes", "changes"):
         return _entries(doc, cfg, args)
+    if args.command == "abstract":
+        return _abstract(doc, cfg, args)
     return _macros(doc, cfg, args)
+
+
+def _abstract(doc, cfg, args) -> int:
+    result = abstract(doc, cfg)
+    warnings = doc.warnings + result.warnings
+    _warn(warnings)
+    if args.json:
+        _print_json("abstract", result.text, warnings)
+        return 0
+    print(result.text)
+    # On the standard error, so that `texlens abstract | pbcopy` copies
+    # only the abstract.
+    print(f"\n({_count(result.words(), 'word')}, "
+          f"{_count(len(result.text), 'character')})", file=sys.stderr)
+    return 0
 
 
 def _warn(warnings):

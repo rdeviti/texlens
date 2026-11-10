@@ -84,9 +84,17 @@ class CliTest(ProjectCase):
         code, out, _ = run("words", PAPER, *MACROS)
         self.assertEqual(code, 0)
         self.assertIn("Word count:", out)
-        self.assertRegex(out, r"Word count:\s+23")
+        self.assertRegex(out, r"Word count:\s+31")
         code, out, _ = run("words", PAPER, "--json", "--captions", *MACROS)
-        self.assertEqual(json.loads(out)["words"]["total"], 24)
+        self.assertEqual(json.loads(out)["words"]["total"], 32)
+
+    def test_abstract(self):
+        code, out, err = run("abstract", PAPER)
+        self.assertEqual((code, out), (0, "Alpha beta gamma. We present Foo, "
+                                          "a tiny paper—for “testing”.\n"))
+        self.assertIn("(10 words, 61 characters)", err)
+        code, out, _ = run("abstract", PAPER, "--json")
+        self.assertTrue(json.loads(out)["abstract"].startswith("Alpha"))
 
     @needs_texcount
     @needs_toml

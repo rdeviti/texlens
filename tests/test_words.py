@@ -94,9 +94,10 @@ class FlattenTest(ProjectCase):
 @needs_texcount
 class CountTest(unittest.TestCase):
     """Expected counts (see tests/paper):
-    abstract 3 (Alpha beta gamma); Intro: One two Foo three (4), four five
-    (2), See (1), six (1), Footnote seven eight (3); Method: thirteen
-    fourteen (2), fifteen (1); Math here (2); twelve (1) -> 20 in text;
+    abstract 11 (Alpha beta gamma We present Foo a tiny paper for testing);
+    Intro: One two Foo three (4), four five (2), See (1), six (1), Footnote
+    seven eight (3); Method: thirteen fourteen (2), fifteen (1); Math here
+    (2); twelve (1) -> 28 in text;
     headings Abstract (TeXcount counts its title), Intro, Method -> 3;
     caption "eleven" -> 1; one formula."""
 
@@ -106,20 +107,20 @@ class CountTest(unittest.TestCase):
     def test_default(self):
         result = self.count()
         self.assertEqual((result.text, result.headers, result.total),
-                         (20, 3, 23))
+                         (28, 3, 31))
         self.assertEqual(result.captions, 1)
         self.assertEqual(result.inline_math, 1)
         self.assertEqual(result.warnings, [])
 
     def test_options(self):
-        self.assertEqual(self.count(captions=True).total, 24)
-        self.assertEqual(self.count(math=True).total, 24)
-        self.assertEqual(self.count(footnotes=False).total, 21)
+        self.assertEqual(self.count(captions=True).total, 32)
+        self.assertEqual(self.count(math=True).total, 32)
+        self.assertEqual(self.count(footnotes=False).total, 29)
 
     def test_unconfigured_macros(self):
         result = count_words(load(PAPER), Config())
-        # \fixme's argument (3) is counted, \sys is not (-1): 23 + 3 - 1.
-        self.assertEqual(result.total, 25)
+        # \fixme's argument (3) is counted, the two \sys are not: 31 + 3 - 2.
+        self.assertEqual(result.total, 32)
 
 
 @needs_texcount
