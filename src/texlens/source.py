@@ -212,6 +212,9 @@ class Document:
     lines: list[Line]
     warnings: list[str] = field(default_factory=list)
     files: list[Path] = field(default_factory=list)  # all files read
+    # The conditionals that texlens can evaluate, as in {"ifdraft": False},
+    # with the values of \newif switches at the end of the document.
+    switches: dict[str, bool] = field(default_factory=dict)
 
     def search(self, pattern: re.Pattern, start=(0, 0)):
         """First (line, column, match) at or after `start` where `pattern`
@@ -724,7 +727,13 @@ def load(main, false_ifs=(), true_ifs=(), hidden_envs=("comment",)
         reader.warnings.append(
             f"{frame.where}: {frame.name} is never closed with \\fi; texlens "
             f"{state} the text after it")
-    return Document(main, reader.lines, reader.warnings, reader.files)
+    switches = {"iftrue": True, "iffalse": False}
+    switches.update({"if" + name: value
+                     for name, value in reader.switches.items()})
+    switches.update({"if" + name: False for name in reader.false_ifs})
+    switches.update({"if" + name: True for name in reader.true_ifs})
+    return Document(main, reader.lines, reader.warnings, reader.files,
+                    switches)
 
 
 def find_main(path: str | None = None) -> Path:

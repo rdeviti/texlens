@@ -113,6 +113,8 @@ class Definition:
     optional: int      # optional arguments
     body: str | None   # None if it could not be read
     pos: int
+    default: str = ""  # the default of the optional argument (\newcommand)
+    delimited: bool = False  # \def with parameters such as #1. or #1#2.
 
 
 _DEFINE = re.compile(r"""
@@ -135,7 +137,7 @@ def definitions(text: str) -> list[Definition]:
         name = m.group("n1") or m.group("n2")
         if name is None:  # \\
             continue
-        i, args, optional = m.end(), 0, 0
+        i, args, optional, default, delimited = m.end(), 0, 0, "", False
         if m.group("doc"):
             spec = read_group(text, i, "{", braces)
             if spec is None:
@@ -146,17 +148,21 @@ def definitions(text: str) -> list[Definition]:
             j = text.find("{", i, i + 200)  # after the parameter text
             if j < 0:
                 continue
-            args, i = len(re.findall(r"#\d", text[i:j])), j
+            parameters = text[i:j]
+            args, i = len(re.findall(r"#\d", parameters)), j
+            delimited = re.sub(r"#\d", "", parameters).strip() != ""
         else:
             count = _ARGUMENT_COUNT.match(text, i)
             if count:
                 args, i = int(count.group(1)), count.end()
-                default = read_group(text, i, "[", braces)
-                if default is not None and args:
-                    args, optional, i = args - 1, 1, default[1]
+                group = read_group(text, i, "[", braces)
+                if group is not None and args:
+                    args, optional, i = args - 1, 1, group[1]
+                    default = group[0]
         body = read_group(text, i, "{", braces)
         out.append(Definition(name, args, optional,
-                              body[0] if body else None, m.start()))
+                              body[0] if body else None, m.start(),
+                              default, delimited))
     return out
 
 

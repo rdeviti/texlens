@@ -255,6 +255,7 @@ prints it as the PDF shows it, without LaTeX markup:
 
 ```console
 $ texlens abstract
+warning: formatting removed; add it back if the form accepts it: \emph{tiny}
 Alpha beta gamma. We present Foo, a tiny paper—for “testing”.
 
 (10 words, 61 characters)
@@ -270,14 +271,22 @@ texlens expands the macros that the paper defines, here `\sys`, and keeps
 the text of formatting commands such as `\emph` and `\textcolor`, of changes
 such as `\rev{...}`, and of URLs. It drops notes, citations, labels, and
 footnotes, and turns LaTeX characters into the characters they print: `---`
-into —, ``` ``...'' ``` into “...”, `\'e` into é, and `~` into a space. It
-keeps the paragraphs, separated by blank lines.
+into —, ``` ``...'' ``` into “...”, `\'e` into é, and `~` into a space.
+Simple math becomes text too, as `$O(n^2)$` becomes O(n²). texlens keeps
+the paragraphs, separated by blank lines.
 
-texlens warns about what it cannot convert: a reference such as `\cref`, which
-it drops (rewrite the text around it), math with commands such as
-`$\epsilon$`, which it keeps as LaTeX, and macros that it does not know. The
-counts of words and characters go to the error output, so
-`texlens abstract | pbcopy` on macOS copies only the abstract.
+texlens also warns:
+
+- about the formatting that it removes, such as `\emph`, `\textbf`, and
+  math, so that you can add it back if the form accepts LaTeX or HTML;
+- about text to check: a citation or a reference such as `\cref`, which it
+  drops (rewrite the text around it), or a footnote;
+- about what it cannot convert: math such as `$\frac{a}{b}$`, which it keeps
+  as LaTeX, a conditional that it cannot evaluate, and macros that it does
+  not know.
+
+The counts of words and characters go to the error output, as the warnings
+do, so `texlens abstract | pbcopy` on macOS copies only the abstract.
 
 ## Configuration
 
@@ -450,8 +459,11 @@ The tests cover:
 - **word counts:** the counted range, the settings and rules given to
   TeXcount, `%TC:ignore` regions, and, with TeXcount, the counts of the test
   paper and of a paper without hidden text, which must equal TeXcount's own;
-- **the abstract:** expanding macros, dropping notes and citations, accents
-  and special characters, math, lines joined by comments, and paragraphs;
+- **the abstract:** finding it (also in included files and in the
+  preamble); expanding macros, with optional arguments, conditionals, and
+  macros that never stop; notes, changes, citations, and references;
+  formatting and its warning; accents, special characters, and math; lines
+  joined by comments and paragraphs; broken LaTeX; and a realistic abstract;
 - **the command line:** the output of each command, `--summary` and
   `--json`, warnings, and errors such as a missing main file or a missing
   TeXcount.

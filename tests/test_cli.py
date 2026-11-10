@@ -93,8 +93,29 @@ class CliTest(ProjectCase):
         self.assertEqual((code, out), (0, "Alpha beta gamma. We present Foo, "
                                           "a tiny paper—for “testing”.\n"))
         self.assertIn("(10 words, 61 characters)", err)
+        self.assertIn("warning: formatting removed; add it back if the form "
+                      "accepts it: \\emph{tiny}", err)
         code, out, _ = run("abstract", PAPER, "--json")
-        self.assertTrue(json.loads(out)["abstract"].startswith("Alpha"))
+        result = json.loads(out)
+        self.assertTrue(result["abstract"].startswith("Alpha"))
+        self.assertIn("\\emph{tiny}", result["warnings"][0])
+
+    def test_abstract_with_options(self):
+        main = self.project({"main.tex": (
+            "\\newif\\iffinal\n\\begin{document}\n\\begin{abstract}\n"
+            "A \\ask{why?} \\new{B}\\iffinal{} C\\fi.\n\\end{abstract}\n"
+            "\\end{document}\n")})
+        code, out, err = run("abstract", str(main), "--note", "ask",
+                             "--change", "new", "--true-if", "iffinal")
+        self.assertEqual((code, out, err.strip()), (0, "A B C.\n",
+                                                    "(3 words, 6 characters)"))
+
+    def test_no_abstract(self):
+        main = self.project({"main.tex": "\\begin{document}\nA\n"
+                                         "\\end{document}\n"})
+        code, out, err = run("abstract", str(main))
+        self.assertEqual((code, out), (2, ""))
+        self.assertIn("no abstract found", err)
 
     @needs_texcount
     @needs_toml
